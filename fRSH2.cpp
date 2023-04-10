@@ -1080,6 +1080,7 @@ void Save()
 }
 void Load()
 {
+ 
     int f;
     int _P_Mode = _O_BINARY;
     _set_fmode(_P_Mode);
@@ -1125,6 +1126,12 @@ int main()
     //struct ffblk ffblk;
     //strcpy(fdat, "");
     //ch = 'n';
+    int DR = MessageBoxW(HWND_DESKTOP, L"Загрузить фрактал?", L"Вопрос", MB_YESNO);
+    if (DR == 6)
+    {
+        needLoad = true;
+    }
+    else { needLoad = false; }
     int ti = 0;
     DX = 0; DY = 0;
     te = 0; t = 0; s = 1;
