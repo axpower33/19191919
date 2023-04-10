@@ -1,5 +1,6 @@
 ﻿// fRSH2.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
+using namespace std;
 
 #include <stdlib.h>
 #include <fcntl.h>
@@ -11,6 +12,11 @@
 #include <dos.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
+#include <windows.h>
+#include <iostream>
+#include <cmath>
+#include <windows.h>
 
 #define M_PI 3.14
 #define Rmx 35
@@ -24,63 +30,63 @@
 //#define GetmixZ=640;
 
 bool WorkShow = false;
-float DX;
-float DY;
+double DX;
+double DY;
 int pg = 0;
 
 struct v3
 {
-    float x, y, z;
+    double x, y, z;
 };
 
 //-----------€§¬Ґ­пҐ¬лҐ Їа®Ја ¬­лҐ Ї а ¬Ґвал------------//
 bool needCharge = true;
-bool needLoad = false;
+bool needLoad = true;
 bool needSave = false;
 bool needRand = true;
 
 //---------- ”Ё§ЁзҐбЄЁҐ ўҐ«ЁзЁ­л -----------//
 int N = 50;
-float dt = 1e-6;                //c        Ј Ї® ўаҐ¬Ґ­Ё
-float dte = 5e-11;              //c        Ј Ї® ўаҐ¬Ґ­Ё
-float Rmax = 13e-7;             //c¬      Њ ЄбЁ¬ «м­л© а ¤Ёгб г з бвЁжл
-float Rmin = 13e-7;             //c¬      ЊЁ­Ё¬ «м­л© а ¤Ёгб г з бвЁжл
-float Rmid = 100e-7;            //c¬      ‘аҐ¤­ҐҐ а ббв®п­ЁҐ ¬Ґ¦¤г з бвЁж ¬Ё
-float Tmshft = 10e-3;           //б       ‚аҐ¬п бў®Ў®¤­®Ј® Їа®ЎҐЈ  з бвЁж
-float DensAg = 10.5;            //Ј/c¬^3  Џ«®в­®бвм бҐаҐЎа 
+double dt = 2e-6;                //c        Ј Ї® ўаҐ¬Ґ­Ё
+double dte = 5e-11;              //c        Ј Ї® ўаҐ¬Ґ­Ё
+double Rmax = 20e-7;             //c¬      Њ ЄбЁ¬ «м­л© а ¤Ёгб г з бвЁжл
+double Rmin = 30e-7;             //c¬      ЊЁ­Ё¬ «м­л© а ¤Ёгб г з бвЁжл
+double Rmid = 100e-7;            //c¬      ‘аҐ¤­ҐҐ а ббв®п­ЁҐ ¬Ґ¦¤г з бвЁж ¬Ё
+double Tmshft = 10e-3;           //б       ‚аҐ¬п бў®Ў®¤­®Ј® Їа®ЎҐЈ  з бвЁж
+double DensAg = 10.5;            //Ј/c¬^3  Џ«®в­®бвм бҐаҐЎа 
 int Tk = 300;                   //K       ’Ґ¬ЇҐа вга 
 int MaxQ = 0;                   //Љг«®­   Њ ЄбЁ¬ «м­л© § ап¤
-float A = 3.4e-19;              //„¦      ђ Ў®в  ўле®¤  н«ҐЄва®­  Ё§ бҐаҐЎа 
-float L = 4e-7;                 //¬       „«Ё­  ў®«­л Ї ¤ ойҐЈ® бўҐв 
+double A = 3.4e-19;              //„¦      ђ Ў®в  ўле®¤  н«ҐЄва®­  Ё§ бҐаҐЎа 
+double L = 4e-7;                 //¬       „«Ё­  ў®«­л Ї ¤ ойҐЈ® бўҐв 
 
 //------------ќ«ҐЄваЁзҐбЄЁҐ Є®­бв ­вл-----------------//
-float kk = 1.38E-23;             //„¦/K    Џ®бв®п­­ п Ѓ®«мж¬ ­ 
-float E0 = 8.854E-14;            //”/c¬    ќ«ҐЄваЁзҐбЄ п Ї®бв®п­­ п
+double kk = 1.38E-23;             //„¦/K    Џ®бв®п­­ п Ѓ®«мж¬ ­ 
+double E0 = 8.854E-14;            //”/c¬    ќ«ҐЄваЁзҐбЄ п Ї®бв®п­­ п
 int E = 100;                     //        „Ён«ҐЄваЁзҐбЄ п Їа®­Ёж Ґ¬®бвм
-float C_SI = 1 / (4 * M_PI * E0 * E);    //        Љ®нддЁжЁҐ­в ЇҐаҐе®¤  Ё§ ‘ѓ‘ ў ‘€
-float eQulon = -1.6E-19;         //Љ«      ‡ ап¤ н«ҐЄва®­ 
-float h = 6e-34;                 //„¦*б    Џ®бв®п­­ п Џ« ­Є 
-float c = 3e8;                  //¬/б     ‘Є®а®бвм бўҐв 
-float Me = 1e-27;                //Ј       Њ бб  н«ҐЄва®­ 
+double C_SI = 1 / (4 * M_PI * E0 * E);    //        Љ®нддЁжЁҐ­в ЇҐаҐе®¤  Ё§ ‘ѓ‘ ў ‘€
+double eQulon = -1.6E-19;         //Љ«      ‡ ап¤ н«ҐЄва®­ 
+double h = 6e-34;                 //„¦*б    Џ®бв®п­­ п Џ« ­Є 
+double c = 3e8;                  //¬/б     ‘Є®а®бвм бўҐв 
+double Me = 1e-27;                //Ј       Њ бб  н«ҐЄва®­ 
 
 Particle* PNp;
 Agregat dF[Npart / 2];
 int Pagregat[Npart / 2];
 Agregat CMass[Npart / 2];
 int ConPat[Npart + 1];
-float TmPat[Npart + 1];
-int s; float t; float te;
+double TmPat[Npart + 1];
+int s; double t; double te;
 unsigned char VDn = 1;
-float OldRX; float OldRY;
+double OldRX; double OldRY;
 Particle* FirstPat = NULL;
 Particle* LastPat = NULL;
 Particle* TempP;
 Particle* Pi;
 Particle* Pj;
 Particle** Mp = NULL;
-float Xmax = 5e-5;
-float Ymax = 5e-5 * 480 / 640;
-float Zmax = 5e-5;
+double Xmax = 5e-5;
+double Ymax = 5e-5 * 480 / 640;
+double Zmax = 5e-5;
 unsigned short PatInt;
 char path[128];
 char ch;
@@ -127,14 +133,14 @@ Particle* Npat(int Np)
 
 void SizePatDistr()
 {
-    int k;
-    float sizep[25];
-    int Kol[25];
-    char fdat[128];
-    fdat[0] = 0;
-    _fmode = O_TEXT;
-    FILE* cl = fopen(fdat, "rt");
-    if (cl != NULL)
+    //int k;
+    //double sizep[25];
+    //int Kol[25];
+    //char fdat[128];
+    //fdat[0] = 0;
+    //_fmode = O_TEXT;
+    //FILE* cl = fopen(fdat, "rt");
+    /*if (cl != NULL)
     {
         for (k = 0; k < 25; k++)
         {
@@ -158,20 +164,22 @@ void SizePatDistr()
         }
     }
     else
-        for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
-            if (Pi->N <= N * 0.2) Pi->R = Rmin;
-            else if (Pi->N <= N * 0.8) Pi->R = (Rmin + Rmax) / 2;
-            else Pi->R = Rmax;
-}
+        */
+    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
+		if (Pi->N <= N * 0.2) Pi->R = Rmin;
+		else if (Pi->N <= N * 0.8) Pi->R = (Rmin + Rmax) / 2;
+		else Pi->R = Rmax;
+ 
+}       
 
 void SpontDstr()
 {
-    float Vel, alpha, theta;
+    double Vel, alpha, theta;
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
     {
-        Vel = 1.41 * sqrt(2 * kk * Tk / Pi->mass) * float(rand()) / RAND_MAX;
-        alpha = 2 * M_PI * float(rand()) / RAND_MAX;
-        theta = 2 * M_PI * float(rand()) / RAND_MAX;
+        Vel = 1.41 * sqrt(2 * kk * Tk / Pi->mass) * double(rand()) / RAND_MAX;
+        alpha = 2 * M_PI * double(rand()) / RAND_MAX;
+        theta = 2 * M_PI * double(rand()) / RAND_MAX;
         Pi->Vx = Vel * cos(theta) * sin(alpha);
         Pi->Vy = Vel * cos(theta) * cos(alpha);
         Pi->Vz = Vel * sin(theta);
@@ -187,12 +195,12 @@ void zeroDstr()
 void MxwDstr()
 {
     int Vminz = 0;
-    float Vmax = 0.25;
+    double Vmax = 0.25;
     int kmax;
     if (N != 2) kmax = N / 3; else kmax = 1;
     int i, j;
     double F;
-    float dN, V, Vel, dv, alpha, theta;
+    double dN, V, Vel, dv, alpha, theta;
     int rdn;
 
     j = 0; i = 1;
@@ -214,8 +222,8 @@ void MxwDstr()
             {
                 j++;
                 Vel = V;
-                alpha = 2 * M_PI * float(rand()) / RAND_MAX;
-                theta = 2 * M_PI * float(rand()) / RAND_MAX;
+                alpha = 2 * M_PI * double(rand()) / RAND_MAX;
+                theta = 2 * M_PI * double(rand()) / RAND_MAX;
                 Pj->Vx = Vel * cos(theta) * sin(alpha);
                 Pj->Vy = Vel * cos(theta) * cos(alpha);
                 Pj->Vz = Vel * sin(theta);
@@ -228,8 +236,8 @@ void MxwDstr()
     while (cnt--)
     {
         Vel = sqrt((8 * kk * Tk) / (M_PI * Pj->mass));
-        alpha = 2 * M_PI * float(rand()) / RAND_MAX;
-        theta = M_PI * float(rand()) / RAND_MAX;
+        alpha = 2 * M_PI * double(rand()) / RAND_MAX;
+        theta = M_PI * double(rand()) / RAND_MAX;
         Pj->Vx = Vel * cos(theta) * sin(alpha);
         Pj->Vy = Vel * cos(theta) * cos(alpha);
         Pj->Vz = Vel * sin(theta);
@@ -240,25 +248,27 @@ void MxwDstr()
 void InitParticle()
 {
     int sign = 0;
-    float sq, alpha;
+    //double sq;// , alpha;
 
     SizePatDistr();
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
     {
         sign = 1 - sign;
-    m1: Pi->X = -Xmax + 640 * float(rand()) / RAND_MAX;
-        Pi->Y = -Ymax + 480 * float(rand()) / RAND_MAX;
-        Pi->Z = -Xmax + 640 * float(rand()) / RAND_MAX;
+    m1: Pi->X = -Xmax + 640 * double(rand()) / RAND_MAX;
+        Pi->Y = -Ymax + 480 * double(rand()) / RAND_MAX;
+        Pi->Z = -Xmax + 640 * double(rand()) / RAND_MAX;
 
         for (Pj = FirstPat; Pj != Pi; Pj = Pj->next)
         {
-            float dist_ij = pow(Pi->X - Pj->X, 2) + pow(Pi->Y - Pj->Y, 2) + pow(Pi->Z - Pj->Z, 2);
-            if (dist_ij <= pow(Pi->R + Pj->R, 2)) goto m1;
+            double dist_ij = pow(Pi->X - Pj->X, 2) + pow(Pi->Y - Pj->Y, 2) + pow(Pi->Z - Pj->Z, 2);
+            if (dist_ij <= pow((5000000 * Pi->R + 5000000 * Pj->R), 2)) goto m1;
         }
-        //if (sign) Pi->q=27e-19;else Pi->q=-27e-19;
-        Pi->q = 0;
-        Pi->mass = 4 / 3 * M_PI * pow(Pi->R, 3) / DensAg;
-        //TmPat[Pi->N]=Tmshft*float(rand())/RAND_MAX;
+
+
+        if (sign) Pi->q = 27e-19; else Pi->q = -27e-19;
+        //Pi->q = 0;
+        Pi->mass = ((4 / 3) * M_PI * pow(Pi->R, 3)) / DensAg;
+        TmPat[Pi->N] = Tmshft * double(rand()) / RAND_MAX;
         Pi->Nf = 0;
         Pi->agr = 0;
         Pi->stop = false;
@@ -266,12 +276,12 @@ void InitParticle()
         Pi->Fy = 0;
         Pi->Fz = 0;
     }
-    switch (VDn)
-    {
-    case 0: MxwDstr(); break;
-    case 1: SpontDstr(); break;
-    case 2: zeroDstr(); break;
-    default:break;
+    //switch (VDn)
+    {MxwDstr();
+    //case 0: MxwDstr(); break;
+
+    //case 2: zeroDstr(); break;
+    //default:break;
     }
 }
 
@@ -282,9 +292,9 @@ void InitEl()
     FirstEl = LastEl = NULL;
 }
 
-float Intense = 0.5; //‚в Њ®й­®бвм бўҐв 
-float Ef = 1e19; //д®в®­®ў ­  1 „¦
-float QuntExit = 1e4;
+double Intense = 0.5; //‚в Њ®й­®бвм бўҐв 
+double Ef = 1e19; //д®в®­®ў ­  1 „¦
+double QuntExit = 1e4;
 int Ie = 1;
 void ElEmit()
 {
@@ -308,7 +318,7 @@ void ElEmit()
                 LastEl = LastEl->Next;
                 LastEl->Next = NULL;
             }
-            float V = sqrt(Pi->Vx * Pi->Vx + Pi->Vy * Pi->Vy + Pi->Vz * Pi->Vz);
+            double V = sqrt(Pi->Vx * Pi->Vx + Pi->Vy * Pi->Vy + Pi->Vz * Pi->Vz);
 
             LastEl->X = Pi->X + Pi->R * Pi->Vx / V;
             LastEl->Y = Pi->Y + Pi->R * Pi->Vy / V;
@@ -338,7 +348,7 @@ void ExclEl(Electron* ExEl)
 
 void ElAbsorbe()
 {
-    float dElPat;
+    double dElPat;
     for (El = FirstEl; El != NULL; El = El->Next)
     {
         if (El->tr <= 2 * dt) continue;
@@ -370,7 +380,7 @@ void DisposeEl()
 
 void ElMove()
 {
-    float dVx, dVy, dVz, dx, dy, dz;
+    double  dx, dy, dz; //dVx, dVy, dVz;
     for (El = FirstEl; El != NULL; El = El->Next)
     {
         /*   dVx=dt*El->Fx/Me;
@@ -410,8 +420,8 @@ bool IsPatInAgr(Particle* Pi, Particle* Pj)
 
 void CulonForce()
 {
-    int Nagr;
-    float Temp, dX, dY, dZ;
+    //int Nagr;
+    double Temp, dX, dY, dZ;
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
     {
         Pi->Fx = 0;
@@ -437,14 +447,14 @@ void CulonForce()
         Pi->Fx *= C_SI;
         Pi->Fy *= C_SI;
         Pi->Fz *= C_SI;
-        //  float U=Pi->Fx*dX+Pi->Fy*dY+Pi->Fz*dZ;
-        //  float Ek=Pi->mass*(pow(Pi->Vx,2)+pow(Pi->Vy,2)+pow(Pi->Vz,2))/2;
+        //double U=Pi->Fx*dX+Pi->Fy*dY+Pi->Fz*dZ;
+        //double Ek=Pi->mass*(pow(Pi->Vx,2)+pow(Pi->Vy,2)+pow(Pi->Vz,2))/2;
     }
 }
 
 void CulPatEl()
 {
-    float Temp, dX, dY, dZ;
+    double Temp, dX, dY, dZ;
     for (El = FirstEl; El != NULL; El = El->Next) El->Fx = El->Fy = El->Fz = 0;
 
     for (El = FirstEl; El != NULL; El = El->Next)
@@ -474,63 +484,119 @@ int sortOfZ(const void* a, const void* b)
             return  0;
 }
 
-//void ShowPicture()
-//{
-//    char st[100];
-//    float Dzx, Dzy;
-//    if (WorkShow) return;
-//    WorkShow = true;
-//
-//    for (El = FirstEl; El != NULL; El = El->Next)
-//    {
-//        Point(LIGHTCYAN, El->X + DX, El->Y + DY);
-//    }
-//    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
-//    {
-//        if (Pi->agr != 0)
-//        {
-//            Dzx = Pi->Z * (Pi->X - CMass[Pi->agr].X) / Zmax;
-//            Dzy = Pi->Z * (Pi->Y - CMass[Pi->agr].Y) / Zmax;
-//        }
-//        else Dzx = Dzy = 0;
-//
-//        if (Pi->q == 0) Circle(MAGENTA, Pi->X + Dzx + DX, Pi->Y + Dzy + DY, Pi->R + Pi->Z * Pi->R / Zmax);
-//        else
-//            if (Pi->q < 0)
-//            {
-//                Line(BLUE, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
-//                Circle(BLUE, Pi->X + Dzx + DX, Pi->Y + Dzy + DY, Pi->R + Pi->Z * Pi->R / Zmax);
-//            }
-//            else
-//            {
-//                Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
-//                Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
-//                Circle(RED, Pi->X + Dzx + DX, Pi->Y + Dzy + DY, Pi->R + Pi->Z * Pi->R / Zmax);
-//            }
-//
-//        /* Setcolor (WHITE);
-//           itoa (Pi->N,st,10);
-//           OutTextXY(Pi->X+DX, Pi->Y+DY, st);
-//        */
-//        if (!Pi->stop) Line(LIGHTGRAY, Pi->X + DX, Pi->Y + DY, Pi->X + DX + Pi->Fx * 1e10, Pi->Y + DY + Pi->Fy * 1e10);
-//    }
-//    for (int i = 1; i < s; i++)
-//    {
-//        Circle(GREEN, CMass[i].X + DX, CMass[i].Y + DY, 1.0 / rangeR);
-//        Line(LIGHTGRAY, CMass[i].X + DX, CMass[i].Y + DY, CMass[i].X + DX + dF[i].X * 1e10, CMass[i].Y + DY + dF[i].Y * 1e10);
-//    }
-//
-//    Rectangle(GREEN, GetminX + DX, GetminY + DY, 640 + DX, 480 + DY);
-//    drwline(SET, RED, maxx / 2 - 2, maxy / 2, maxx / 2 + 2, maxy / 2);
-//    drwline(SET, RED, maxx / 2, maxy / 2 - 2, maxx / 2, maxy / 2 + 2);
-//    drwbox(SET, RED, maxx / 2 - 4, maxy / 2 + 4, maxx / 2 + 4, maxy / 2 - 4);
-//
-//    pagedisplay(0, 0, pg);
-//    pg = 1 - pg;
-//    pageactive(pg);
-//    fillpage(0);
-//    WorkShow = false;
-//}
+void ClearScreen()
+{
+    HANDLE                     hStdOut;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    DWORD                      count;
+    DWORD                      cellCount;
+    COORD                      homeCoords = { 0, 0 };
+
+    hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hStdOut == INVALID_HANDLE_VALUE) return;
+
+    /* Get the number of cells in the current buffer */
+    if (!GetConsoleScreenBufferInfo(hStdOut, &csbi)) return;
+    cellCount = csbi.dwSize.X * csbi.dwSize.Y;
+
+    /* Fill the entire buffer with spaces */
+    if (!FillConsoleOutputCharacter(
+        hStdOut,
+        (TCHAR)' ',
+        cellCount,
+        homeCoords,
+        &count
+    )) return;
+
+    /* Fill the entire buffer with the current colors and attributes */
+    if (!FillConsoleOutputAttribute(
+        hStdOut,
+        csbi.wAttributes,
+        cellCount,
+        homeCoords,
+        &count
+    )) return;
+
+    /* Move the cursor home */
+    SetConsoleCursorPosition(hStdOut, homeCoords);
+}
+
+int ShowPicture(HDC hdc)
+{
+    //char st[100];
+    double Dzx, Dzy;
+    //if (WorkShow) return 1;
+    //WorkShow = true;
+    //for (El = FirstEl; El != NULL; El = El->Next)
+    //{
+    //    SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
+    //}
+
+
+    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
+    {
+        if (Pi->agr != 0)
+        {
+            Dzx = Pi->Z * (Pi->X - CMass[Pi->agr].X) / (2 * Zmax);
+            Dzy = Pi->Z * (Pi->Y - CMass[Pi->agr].Y) / (2 * Zmax);
+        }
+        else Dzx = Dzy = 0;
+            
+
+        //if (Pi->q == 0)
+        //{
+        //    HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 255));
+        //    HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+        //    Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
+        //}
+        //else
+        if (Pi->q > 0)
+        {
+            //LineTo(hdc, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
+            HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 0));
+            HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+            Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
+            DeleteObject(hbrush);
+            DeleteObject(hbrushOld);
+        }
+        else
+		if (Pi->q < 0)
+		{
+			//Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
+			//Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
+			HBRUSH hbrush = CreateSolidBrush(RGB(0, 0, 255));
+			HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+			Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
+			DeleteObject(hbrush);
+			DeleteObject(hbrushOld);
+		}
+    }
+
+    //    /* Setcolor (WHITE);
+    //       itoa (Pi->N,st,10);
+    //       OutTextXY(Pi->X+DX, Pi->Y+DY, st);
+    //    */
+    //    if (!Pi->stop) Line(LIGHTGRAY, Pi->X + DX, Pi->Y + DY, Pi->X + DX + Pi->Fx * 1e10, Pi->Y + DY + Pi->Fy * 1e10);
+    //}
+    //for (int i = 1; i < s; i++)
+    //{
+    //    Circle(GREEN, CMass[i].X + DX, CMass[i].Y + DY, 1.0 / rangeR);
+    //    Line(LIGHTGRAY, CMass[i].X + DX, CMass[i].Y + DY, CMass[i].X + DX + dF[i].X * 1e10, CMass[i].Y + DY + dF[i].Y * 1e10);
+    //}
+
+    //Rectangle(GREEN, GetminX + DX, GetminY + DY, 640 + DX, 480 + DY);
+    //drwline(SET, RED, maxx / 2 - 2, maxy / 2, maxx / 2 + 2, maxy / 2);
+    //drwline(SET, RED, maxx / 2, maxy / 2 - 2, maxx / 2, maxy / 2 + 2);
+    //drwbox(SET, RED, maxx / 2 - 4, maxy / 2 + 4, maxx / 2 + 4, maxy / 2 - 4);
+
+    //pagedisplay(0, 0, pg);
+    //pg = 1 - pg;
+    //pageactive(pg);
+    //fillpage(0);
+    //WorkShow = false;
+
+    return 1;
+}
 //
 //bool int9Work = false;
 
@@ -613,26 +679,26 @@ int sortOfZ(const void* a, const void* b)
     //   ShowPicture();
 //}
 
-//void RandWalk(float& TmP, float& Vlx, float& Vly, float& Vlz)
+//void RandWalk(double& TmP, double& Vlx, double& Vly, double& Vlz)
 //{
 //    int sign;
 //    if (TmP < t)
 //    {
 //        sign = (2 * random(2) - 1);
-//        Vlx = Vlx * sign;
+//       Vlx = Vlx * sign;
 //        sign = (2 * random(2) - 1);
 //        Vly = Vly * sign;
 //        sign = (2 * random(2) - 1);
 //        Vlz = Vlz * sign;
-//        TmP += Tmshft * float(rand()) / RAND_MAX;
+//        TmP += Tmshft * double(rand()) / RAND_MAX;
 //    }
 //}
 
 void MovePart()
 {
-    int i, j;
-    char st[10];
-    float dVx, dVy, dVz, dx, dy, dz;
+    //int i, j;
+    //char st[10];
+    double dVx, dVy, dVz, dx, dy, dz;
 
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
         if (Pi->stop == false)
@@ -644,11 +710,11 @@ void MovePart()
             Pi->Vx += dVx;
             Pi->Vy += dVy;
             Pi->Vz += dVz;
-            // RandWalk(TmPat[Pi->N],Pi->Vx,Pi->Vy,Pi->Vz);
+            //RandWalk(TmPat[Pi->N],Pi->Vx,Pi->Vy,Pi->Vz);
 
-            Pi->X += dx = dt * Pi->Vx;
-            Pi->Y += dy = dt * Pi->Vy;
-            Pi->Z += dz = dt * Pi->Vz;
+            Pi->X += dx = 5000000 * dt * Pi->Vx;
+            Pi->Y += dy = 5000000 * dt * Pi->Vy;
+            Pi->Z += dz = 5000000 * dt * Pi->Vz;
 
             if ((Pi->X > 640) || (Pi->X < 0)) { Pi->Vx = -Pi->Vx; Pi->X -= dx; }
             if ((Pi->Y > 480) || (Pi->Y < 0)) { Pi->Vy = -Pi->Vy; Pi->Y -= dy; }
@@ -661,7 +727,7 @@ void MovePart()
 void AngleSpeed(int kk, RPoint& W)
 {
     // Џ®«­л© ¬®¬Ґ­в бЁ«, ¤Ґ©бвўгойЁ© ­   ЈаҐЈ в б® бв®а®­л ®бв «м­ле з бвЁж
-    float Nx = 0; float Ny = 0; float Nz = 0;
+    double Nx = 0; double Ny = 0; double Nz = 0;
 
     int i = Pagregat[kk];
     while (i)
@@ -684,7 +750,7 @@ void AngleSpeed(int kk, RPoint& W)
 void ChangeCMass(int Nagr)
 {
     int Np = Pagregat[Nagr];
-    float Mass = 0;
+    double Mass = 0;
     CMass[Nagr].X = 0;
     CMass[Nagr].Y = 0;
     CMass[Nagr].Z = 0;
@@ -740,9 +806,9 @@ void ChangeCMass(int Nagr)
 }
 
 // Џа®жҐ¤гал ¤«п а Ў®вл б  ЈаҐЈ в ¬Ё
-float GetMass(int i)
+double GetMass(int i)
 {
-    float ret = 0;
+    double ret = 0;
     if (Pi->stop)
     {
         i = Pagregat[Pi->agr];
@@ -798,14 +864,14 @@ void AddPattoAgr(Particle* Pi, Particle* Pj)
 //      ђa§¤ўЁЈ Ґв ¤ўҐ з бвЁжл
 void PushAway(Particle* Pi, Particle* Pj)
 {
-    float dX, dY, dZ, R;
+    double dX, dY, dZ, R;
 
     R = Pi->R + Pj->R;
     dX = Pj->X - Pi->X;
     dY = Pj->Y - Pi->Y;
     dZ = Pj->Z - Pi->Z;
 
-    float dist_ij = sqrt(dX * dX + dY * dY + dZ * dZ);
+    double dist_ij = sqrt(dX * dX + dY * dY + dZ * dZ);
 
     dX *= (R - dist_ij) / dist_ij;
     dY *= (R - dist_ij) / dist_ij;
@@ -845,27 +911,29 @@ void UnitPaticle(Particle* Pi, Particle* Pj)
 
     if (IsPatInAgr(Pi, Pj)) return;
 
-
     PushAway(Pi, Pj);
 
     SetAgrSpeed(Pi);
     SetAgrSpeed(Pj);
 
+
     if (Pi->stop == false)
     {
         if (Pj->stop == false)
         {
+
             Pagregat[s] = Pi->N;
             Pi->agr = s;
             Pj->agr = s;
             s++;
             ConPat[i] = j;
+
         }
         else AddPattoAgr(Pj, Pi);
-
     }
     else
-        if (Pj->stop == false) AddPattoAgr(Pi, Pj);
+        if (Pj->stop == false)
+            AddPattoAgr(Pi, Pj);
         else
         {
             kk = Pi->agr;
@@ -898,7 +966,7 @@ void UnitPaticle(Particle* Pi, Particle* Pj)
 void AgrForces()
 {
     int i, kk;
-    float mass, dVx, dVy, dVz, dX, dY, dZ, M1;
+    double mass, dVx, dVy, dVz, dX, dY, dZ;// , M1;
     for (kk = 1; kk < s; kk++)
     {
         i = Pagregat[kk];
@@ -923,9 +991,9 @@ void AgrForces()
         CMass[kk].Vx += dVx;
         CMass[kk].Vy += dVy;
         CMass[kk].Vz += dVz;
-        CMass[kk].X += dt * CMass[kk].Vx;
-        CMass[kk].Y += dt * CMass[kk].Vy;
-        CMass[kk].Z += dt * CMass[kk].Vz;
+        CMass[kk].X += 5000000 * dt * CMass[kk].Vx;
+        CMass[kk].Y += 5000000 * dt * CMass[kk].Vy;
+        CMass[kk].Z += 5000000 * dt * CMass[kk].Vz;
 
         //-------- ‚лзЁб«Ґ­ЁҐ гЈ«  Phi --------//
         RPoint phi;
@@ -940,9 +1008,9 @@ void AgrForces()
         while (i)
         {
             Pi = Npat(i);
-            Pi->X += dt * (CMass[kk].Vx + dVx);
-            Pi->Y += dt * (CMass[kk].Vy + dVy);
-            Pi->Z += dt * (CMass[kk].Vz + dVz);
+            Pi->X += 5000000 * dt * (CMass[kk].Vx + dVx);
+            Pi->Y += 5000000 * dt * (CMass[kk].Vy + dVy);
+            Pi->Z += 5000000 * dt * (CMass[kk].Vz + dVz);
             dX = Pi->X - CMass[kk].X;
             dY = Pi->Y - CMass[kk].Y;
             Pi->X = CMass[kk].X + dX * cos(phi.Z) - dY * sin(phi.Z);
@@ -965,73 +1033,75 @@ void AgrForces()
 
 void Save()
 {
-    char fdat[128]; fdat[0] = 0;
-    //strcpy(fdat, PathToDat());
-    strcat(fdat, "fractal.dat");
-    _fmode = O_BINARY;
-    int f = creat(fdat, S_IWRITE);
-    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
-    write(f, Pi, sizeof(Particle));
-    write(f, CMass, sizeof(CMass));
-    write(f, Pagregat, sizeof(Pagregat));
-    write(f, ConPat, sizeof(ConPat));
-    write(f, &s, sizeof(s));
-    write(f, &dt, sizeof(t));
-    write(f, &t, sizeof(t));
-    close(f);
+    int f2;
+    int _P_Mode = _O_BINARY;
+    _set_fmode(_P_Mode);
+    FILE* pFil;
+    fopen_s(&pFil,"fractal.dat", "w");
+    fclose(pFil);
 
-    fdat[0] = 0;
-    //strcpy(fdat, PathToDat());
-    strcat(fdat, "fract.dat");
-    FILE* F = fopen(fdat, "w+");
+    _sopen_s(&f2, "fractal.dat", _O_RDWR, _SH_DENYNO, _S_IWRITE);
+
+    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
+    {
+        _write(f2, Pi, sizeof(Particle));
+    }
+    _write(f2, CMass, sizeof(CMass));
+    _write(f2, Pagregat, sizeof(Pagregat));
+    _write(f2, ConPat, sizeof(ConPat));
+    _write(f2, &s, sizeof(s));
+    _write(f2, &dt, sizeof(dt));
+    _write(f2, &t, sizeof(t));
+    _close(f2);
+    std::cout << "fractal.dat is saved";
+
+    FILE* pFile;
+    fopen_s(&pFile, "fract.dat", "w+");
     for (int i = 1; i != s; i++)
     {
         int j = Pagregat[i];
         while (j != 0)
         {
             Pj = Npat(j);
-            fprintf(F, "%+e    %+e    %+e\xD\n", Pj->X, Pj->Y, Pj->Z);
+            fprintf(pFile, "%+f    %+f    %+f\n", Pj->X, Pj->Y, Pj->Z);
             j = ConPat[j];
         }
-        fprintf(F, "\xD\n");
+        fprintf(pFile, "\xD\n");
     }
-    fclose(F);
+    fclose(pFile);
+    std::cout << "fract.dat is saved";
 
-    fdat[0] = 0;
-    //strcpy(fdat, PathToDat());
-    strcat(fdat, "frsp.dat");
-    FILE* F1 = fopen(fdat, "w+");
+    FILE* F1;
+    fopen_s(&F1, "frsp.dat", "w+");
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
-        fprintf(F1, "%+e    %+e    %+e\xD\n", Pi->X, Pi->Y, Pi->Z);
+        fprintf(F1, "%+f    %+f    %+f\n", Pi->X, Pi->Y, Pi->Z);
     fclose(F1);
+    std::cout << "frsp.dat is saved";
 }
-
 void Load()
 {
-    _fmode = O_BINARY;
-    char fdat[128]; fdat[0] = 0;
-    //strcpy(fdat, PathToDat());
-    strcat(fdat, "fractal.dat");
-    int f = open(fdat, S_IREAD);
+    int f;
+    int _P_Mode = _O_BINARY;
+    _set_fmode(_P_Mode);
+    _sopen_s(&f, "fractal.dat", _O_RDWR, _SH_DENYNO, _S_IREAD);
 
     TempP = new Particle;
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
     {
         TempP->next = Pi->next;
         TempP->pred = Pi->pred;
-        read(f, Pi, sizeof(Particle));
+        _read(f, Pi, sizeof(Particle));
         Pi->next = TempP->next;
         Pi->pred = TempP->pred;
     }
     delete TempP;
-
-    read(f, CMass, sizeof(CMass));
-    read(f, Pagregat, sizeof(Pagregat));
-    read(f, ConPat, sizeof(ConPat));
-    read(f, &s, sizeof(s));
-    read(f, &dt, sizeof(t));
-    read(f, &t, sizeof(t));
-    close(f);
+    _read(f, CMass, sizeof(CMass));
+    _read(f, Pagregat, sizeof(Pagregat));
+    _read(f, ConPat, sizeof(ConPat));
+    _read(f, &s, sizeof(s));
+    _read(f, &dt, sizeof(dt));
+    _read(f, &t, sizeof(t));
+    _close(f);
 }
 
 int NumPatOutAgr()
@@ -1046,77 +1116,90 @@ int NumPatInAgr()
     return N - NumPatOutAgr();
 }
 
-float tpa;
+
+
+double tpa;
 int main()
 {
     //unsigned long mb = coreleft();
     //struct ffblk ffblk;
-    char fdat[128];
-    fdat[0] = 0;
-    //strcpy(fdat, PathToDat()); strcat(fdat, "numpat.dat");
-    _fmode = O_TEXT;
-    FILE* cl;
-    ch = 'n';
+    //strcpy(fdat, "");
+    //ch = 'n';
     int ti = 0;
     DX = 0; DY = 0;
     te = 0; t = 0; s = 1;
     //PaletteData c, nm;
     //palget(nm, 0, 15);
-    //for (int i = 0; i < 64; i++) { c[i + 16].r = ((i * i) / 64); c[i + 16].g = 0; c[i + 16].b = 0; }
-    //for (i = 0; i < 64; i++) { c[i + 64 + 16].r = ((i * i) / 64); c[i + 64 + 16].g = 0; c[i + 64 + 16].b = ((i * i) / 64); }
-    //for (i = 0; i < 64; i++) { c[i + 128 + 16].r = 0; c[i + 128 + 16].g = 0; c[i + 128 + 16].b = ((i * i) / 64); }
+ /* for (int i = 0; i < 64; i++) { c[i + 16].r = ((i * i) / 64); c[i + 16].g = 0; c[i + 16].b = 0; }
+    for (i = 0; i < 64; i++) { c[i + 64 + 16].r = ((i * i) / 64); c[i + 64 + 16].g = 0; c[i + 64 + 16].b = ((i * i) / 64); }
+    for (i = 0; i < 64; i++) { c[i + 128 + 16].r = 0; c[i + 128 + 16].g = 0; c[i + 128 + 16].b = ((i * i) / 64); }*/
     //palcopy(nm, c, 0, 15);
     //InitGraph(-Xmax, -Ymax, Xmax, Ymax);
     //OldRX = rangeX; OldRY = rangeY;
     //KeyInt = getvect(9);
     //setvect(9, ScPict);
-    //randomize();
-    InitEl();
+    rand();
+    //InitEl();
+    HWND hwnd = GetConsoleWindow();
+    HDC hdc = GetDC(hwnd);
+    HBRUSH hbr = CreateSolidBrush(RGB(0, 0, 0));
+    HRGN hrgn = CreateRectRgn(0, 0, 640, 480);
+
+
     InitAgr();
     MakeArray(N);
-    InitParticle();
 
+    if (needLoad) Load(); else InitParticle();
     do
     {
         if (!Se)
         {
-            ElEmit();
+            //ElEmit();
             CulonForce();
             for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
                 for (Pj = Pi->next; Pj != NULL; Pj = Pj->next)
                 {
-                    float dist_ij = pow(Pi->X - Pj->X, 2) + pow(Pi->Y - Pj->Y, 2) + pow(Pi->Z - Pj->Z, 2);
-                    if (dist_ij <= pow((Pi->R + Pj->R), 2)) UnitPaticle(Pi, Pj);
+                    double dist_ij = pow(Pi->X - Pj->X, 2) + pow(Pi->Y - Pj->Y, 2) + pow(Pi->Z - Pj->Z, 2);
+                    if (dist_ij <= pow((5000000 * Pi->R + 5000000 * Pj->R), 2)) UnitPaticle(Pi, Pj);
                 }
+
             AgrForces();
+
             MovePart();
             t += dt;
         }
         else
         {
-            ElMove();
-            te += dte;
-            if ((te >= dt) || (Ie == 1)) { te = 0; Se = false; }
+            //ElMove();
+            //te += dte;
+           // if ((te >= dt) || (Ie == 1)) { te = 0; Se = false; }
         }
-        ElAbsorbe();
-        //ShowPicture(); 
-        break;
-        if (kbhit()) ch = getch();
-        if ((t > 1e-2) && (s == 2)) ch = 'q';
-    } while (ch != 'q');
+        //ElAbsorbe();
+        FillRgn(hdc, hrgn, hbr);
+        int sp = ShowPicture(hdc);
+        //pg = 1 - pg;
+        //if (s == 10){break; }
+        if (_kbhit()) ch = _getch();
+        if (ch == 'q') break;
+        if (t > 2) { break; };
+    } while (0 == 0);
 
-    getch();
+    Save();
     
+    _getch();
+    DeleteObject(hbr);
+    DeleteObject(hrgn);
+    ReleaseDC(hwnd, hdc);
 
-
-    DistroyArray();
-    DisposeEl();
+    //DistroyArray();
+    //DisposeEl();
     //gotoxy(20, 13);
-    printf("Aggregation time = %.3e\n", t);
-   // gotoxy(1, 20);
+
+    // gotoxy(1, 20);
     //printf("memory lost %lu\n", mb - coreleft());
-    printf("Number free electrons=%d", Ie--);
-    getch();
+    //printf("Number free electrons=%d", Ie--);
+    //getch();
+}
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
 // Отладка программы: F5 или меню "Отладка" > "Запустить отладку"

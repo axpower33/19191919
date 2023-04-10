@@ -1,18 +1,18 @@
 const int Npart=300;
 
 struct RPoint
-		  {float X;
-		   float Y;
-		   float Z;};
+		  {double X;
+		   double Y;
+		   double Z;};
 struct
 		   Particle{
-		   float X,Y,Z;
-		   float Vx,Vy,Vz;
-		   float Fx,Fy,Fz;
-		   float Nf;
-		   float mass;
-		   float q;
-		   float R;
+		   double X,Y,Z;
+		   double Vx,Vy,Vz;
+		   double Fx,Fy,Fz;
+		   double Nf;
+		   double mass;
+		   double q;
+		   double R;
 		   int	  N;
 		   int	  agr;
 		   bool stop;
@@ -20,16 +20,16 @@ struct
 		   Particle* pred;};
 
 struct Agregat{
-		 float X,Y,Z;
-		 float Vx,Vy,Vz;
-		 float Jx,Jy,Jz;
-		 float Mx,My,Mz;
+		 double X,Y,Z;
+		 double Vx,Vy,Vz;
+		 double Jx,Jy,Jz;
+		 double Mx,My,Mz;
 	      };
 struct Electron{
-		float X,Y,Z;
-		float Vx,Vy,Vz;
-		float Fx,Fy,Fz;
-		float tr;
+		double X,Y,Z;
+		double Vx,Vy,Vz;
+		double Fx,Fy,Fz;
+		double tr;
 		Electron* Next;
 		Electron* Pred;
 		};
@@ -50,27 +50,27 @@ extern unsigned char VDn;
 extern int N;
 extern int nn;
 extern int s;
-extern float dt;
-extern	float Rmin;
-extern	float Rmax;
-extern	float Rmid;
-extern	float Tmshft;
-extern	float DensAg;
-extern	float Xmin;
-extern	float Xmax;
-extern	float Ymin;
-extern	float Ymax;
-extern	float Zmax;
+extern double dt;
+extern	double Rmin;
+extern	double Rmax;
+extern	double Rmid;
+extern	double Tmshft;
+extern	double DensAg;
+extern	double Xmin;
+extern	double Xmax;
+extern	double Ymin;
+extern	double Ymax;
+extern	double Zmax;
 extern	int Tk;
 extern	int MaxQ;
 extern	int Kmax;
 extern	int ScR;
-extern	float Koeff;
-extern	float RNG;
-extern	float Xmn;
-extern	float Xmx;
-extern	float del;
+extern	double Koeff;
+extern	double RNG;
+extern	double Xmn;
+extern	double Xmx;
+extern	double del;
 extern  int countCall;
-extern	float Lmin;
-extern	float Lmax;
+extern	double Lmin;
+extern	double Lmax;
 */
