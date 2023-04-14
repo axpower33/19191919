@@ -32,7 +32,7 @@ using namespace std;
 bool WorkShow = false;
 double DX;
 double DY;
-int pg = 0;
+//int pg = 0;
 
 struct v3
 {
@@ -44,14 +44,14 @@ bool needCharge = true;
 bool needLoad = true;
 bool needSave = false;
 bool needRand = true;
-
+int sd = 0;
 //---------- ”Ё§ЁзҐбЄЁҐ ўҐ«ЁзЁ­л -----------//
 int N = 50;
 double dt = 2e-6;                //c        Ј Ї® ўаҐ¬Ґ­Ё
 double dte = 5e-11;              //c        Ј Ї® ўаҐ¬Ґ­Ё
-double Rmax = 20e-7;             //c¬      Њ ЄбЁ¬ «м­л© а ¤Ёгб г з бвЁжл
-double Rmin = 30e-7;             //c¬      ЊЁ­Ё¬ «м­л© а ¤Ёгб г з бвЁжл
-double Rmid = 100e-7;            //c¬      ‘аҐ¤­ҐҐ а ббв®п­ЁҐ ¬Ґ¦¤г з бвЁж ¬Ё
+double Rmax = 25e-7;             //c¬      Њ ЄбЁ¬ «м­л© а ¤Ёгб г з бвЁжл
+double Rmin = 15e-7;             //c¬      ЊЁ­Ё¬ «м­л© а ¤Ёгб г з бвЁжл
+double Rmid = 20e-7;            //c¬      ‘аҐ¤­ҐҐ а ббв®п­ЁҐ ¬Ґ¦¤г з бвЁж ¬Ё
 double Tmshft = 10e-3;           //б       ‚аҐ¬п бў®Ў®¤­®Ј® Їа®ЎҐЈ  з бвЁж
 double DensAg = 10.5;            //Ј/c¬^3  Џ«®в­®бвм бҐаҐЎа 
 int Tk = 300;                   //K       ’Ґ¬ЇҐа вга 
@@ -555,21 +555,21 @@ int ShowPicture(HDC hdc)
             //LineTo(hdc, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
             HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 0));
             HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-            Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
+            Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax));
             DeleteObject(hbrush);
             DeleteObject(hbrushOld);
         }
         else
-		if (Pi->q < 0)
-		{
-			//Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
-			//Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
-			HBRUSH hbrush = CreateSolidBrush(RGB(0, 0, 255));
-			HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-			Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
-			DeleteObject(hbrush);
-			DeleteObject(hbrushOld);
-		}
+            if (Pi->q < 0)
+            {
+                //Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
+                //Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
+                HBRUSH hbrush = CreateSolidBrush(RGB(0, 0, 255));
+                HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+                Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax));
+                DeleteObject(hbrush);
+                DeleteObject(hbrushOld);
+            }
     }
 
     //    /* Setcolor (WHITE);
@@ -1063,7 +1063,7 @@ void Save()
         while (j != 0)
         {
             Pj = Npat(j);
-            fprintf(pFile, "%+f    %+f    %+f\n", Pj->X, Pj->Y, Pj->Z);
+            fprintf(pFile, "%+e    %+e    %+e\n", Pj->X / 5000000, Pj->Y / 5000000, Pj->Z / 5000000);
             j = ConPat[j];
         }
         fprintf(pFile, "\xD\n");
@@ -1074,13 +1074,12 @@ void Save()
     FILE* F1;
     fopen_s(&F1, "frsp.dat", "w+");
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
-        fprintf(F1, "%+f    %+f    %+f\n", Pi->X, Pi->Y, Pi->Z);
+        fprintf(F1, "%+e    %+e    %+e\n", Pi->X / 5000000, Pi->Y / 5000000, Pi->Z / 5000000);
     fclose(F1);
     std::cout << "frsp.dat is saved";
 }
 void Load()
 {
- 
     int f;
     int _P_Mode = _O_BINARY;
     _set_fmode(_P_Mode);
@@ -1117,8 +1116,6 @@ int NumPatInAgr()
     return N - NumPatOutAgr();
 }
 
-
-
 double tpa;
 int main()
 {
@@ -1127,11 +1124,7 @@ int main()
     //strcpy(fdat, "");
     //ch = 'n';
     int DR = MessageBoxW(HWND_DESKTOP, L"Загрузить фрактал?", L"Вопрос", MB_YESNO);
-    if (DR == 6)
-    {
-        needLoad = true;
-    }
-    else { needLoad = false; }
+    if (DR == 6) needLoad = true; else  needLoad = false; 
     int ti = 0;
     DX = 0; DY = 0;
     te = 0; t = 0; s = 1;
@@ -1145,18 +1138,25 @@ int main()
     //OldRX = rangeX; OldRY = rangeY;
     //KeyInt = getvect(9);
     //setvect(9, ScPict);
-    rand();
+
+    int f2;
+    int _P_Mode = _O_BINARY;
+    _set_fmode(_P_Mode);
+    _sopen_s(&f2, "sd.dat", _O_RDWR, _SH_DENYNO, _S_IREAD);
+    _read(f2, &sd, sizeof(sd));
+    _close(f2);
+    if (!needLoad)  sd++;
+
     //InitEl();
     HWND hwnd = GetConsoleWindow();
     HDC hdc = GetDC(hwnd);
-    HBRUSH hbr = CreateSolidBrush(RGB(0, 0, 0));
     HRGN hrgn = CreateRectRgn(0, 0, 640, 480);
-
-
+    HBRUSH hbr = CreateSolidBrush(RGB(0, 0, 0));
+    
     InitAgr();
     MakeArray(N);
-
     if (needLoad) Load(); else InitParticle();
+
     do
     {
         if (!Se)
@@ -1182,17 +1182,27 @@ int main()
            // if ((te >= dt) || (Ie == 1)) { te = 0; Se = false; }
         }
         //ElAbsorbe();
+    
         FillRgn(hdc, hrgn, hbr);
         int sp = ShowPicture(hdc);
+
         //pg = 1 - pg;
         //if (s == 10){break; }
         if (_kbhit()) ch = _getch();
         if (ch == 'q') break;
-        if (t > 2) { break; };
+        if (t > 2) break; 
     } while (0 == 0);
 
     Save();
-    
+
+    int f;
+    FILE* pFil;
+    fopen_s(&pFil, "sd.dat", "w");
+    fclose(pFil);
+    _sopen_s(&f, "sd.dat", _O_RDWR, _SH_DENYNO, _S_IWRITE);
+    _write(f, &sd, sizeof(sd));
+    _close(f);
+    std::cout << " sd=" << sd;
     _getch();
     DeleteObject(hbr);
     DeleteObject(hrgn);
