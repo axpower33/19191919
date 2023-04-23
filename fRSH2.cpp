@@ -32,7 +32,7 @@ using namespace std;
 bool WorkShow = false;
 double DX;
 double DY;
-//int pg = 0;
+int pg = 0;
 
 struct v3
 {
@@ -531,17 +531,19 @@ int ShowPicture(HDC hdc)
     //{
     //    SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
     //}
-
-
-    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
+    int i;
+    for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
+    qsort(Mp, N, sizeof(Particle*), &sortOfZ);
+    
+    for (i=1; i<N; i++)
     {
-        if (Pi->agr != 0)
+        if (Mp[i]->agr != 0)
         {
-            Dzx = Pi->Z * (Pi->X - CMass[Pi->agr].X) / (2 * Zmax);
-            Dzy = Pi->Z * (Pi->Y - CMass[Pi->agr].Y) / (2 * Zmax);
+            Dzx = Mp[i]->Z * (Mp[i]->X - CMass[Mp[i]->agr].X) / (2 * Zmax);
+            Dzy = Mp[i]->Z * (Mp[i]->Y - CMass[Mp[i]->agr].Y) / (2 * Zmax);
         }
         else Dzx = Dzy = 0;
-            
+
 
         //if (Pi->q == 0)
         //{
@@ -550,26 +552,27 @@ int ShowPicture(HDC hdc)
         //    Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
         //}
         //else
-        if (Pi->q > 0)
+        HBRUSH hbrush, hbrushOld;
+        if (Mp[i]->q > 0)
         {
             //LineTo(hdc, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
-            HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 0));
-            HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-            Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax));
+            hbrush = CreateSolidBrush(RGB(255, 0, 0));
+            hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+            Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
             DeleteObject(hbrush);
             DeleteObject(hbrushOld);
         }
         else
-            if (Pi->q < 0)
-            {
-                //Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
-                //Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
-                HBRUSH hbrush = CreateSolidBrush(RGB(0, 0, 255));
-                HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-                Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + 5000000 * Pi->R + Pi->Z * Pi->R / Zmax));
-                DeleteObject(hbrush);
-                DeleteObject(hbrushOld);
-            }
+		if (Mp[i]->q < 0)
+		{
+			//Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
+			//Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
+			hbrush = CreateSolidBrush(RGB(0, 0, 255));
+			hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+            Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
+			DeleteObject(hbrush);
+			DeleteObject(hbrushOld);
+		}
     }
 
     //    /* Setcolor (WHITE);
@@ -594,7 +597,6 @@ int ShowPicture(HDC hdc)
     //pageactive(pg);
     //fillpage(0);
     //WorkShow = false;
-
     return 1;
 }
 //
@@ -1073,11 +1075,22 @@ void Save()
 
     FILE* F1;
     fopen_s(&F1, "frsp.dat", "w+");
+    double Dzx, Dzy, Dzz;
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
-        fprintf(F1, "%+e    %+e    %+e\n", Pi->X / 5000000, Pi->Y / 5000000, Pi->Z / 5000000);
+    {
+        if (Pi->agr != 0)
+        {
+            Dzx = Pi->Z * (Pi->X - CMass[Pi->agr].X) / (2 * Zmax);
+            Dzy = Pi->Z * (Pi->Y - CMass[Pi->agr].Y) / (2 * Zmax);
+            Dzz = Pi->Z * (Pi->Z - CMass[Pi->agr].Z) / (2 * Zmax);
+        }
+        else Dzx = Dzy = Dzz = 0;
+        fprintf(F1, "%+e    %+e    %+e\n", (Pi->X + Pi->R / 2+ Dzx) / 5000000, (Pi->Y + Pi->R / 2+ Dzy) / 5000000, (Pi->Z + Pi->R / 2+Dzz) / 5000000);
+    }
     fclose(F1);
     std::cout << "frsp.dat is saved";
 }
+
 void Load()
 {
     int f;
@@ -1128,6 +1141,8 @@ int main()
     int ti = 0;
     DX = 0; DY = 0;
     te = 0; t = 0; s = 1;
+    ch = 'b';
+    
     //PaletteData c, nm;
     //palget(nm, 0, 15);
  /* for (int i = 0; i < 64; i++) { c[i + 16].r = ((i * i) / 64); c[i + 16].g = 0; c[i + 16].b = 0; }
@@ -1142,17 +1157,22 @@ int main()
     int f2;
     int _P_Mode = _O_BINARY;
     _set_fmode(_P_Mode);
-    _sopen_s(&f2, "sd.dat", _O_RDWR, _SH_DENYNO, _S_IREAD);
-    _read(f2, &sd, sizeof(sd));
-    _close(f2);
-    if (!needLoad)  sd++;
+    if (_sopen_s(&f2, "sd.dat", _O_RDWR, _SH_DENYNO, _S_IREAD) != ENOENT) {
+        _read(f2, &sd, sizeof(sd));
+        _close(f2);
+    }
+    else sd = 0;
+    if (!needLoad) sd++;
+    srand(sd);
 
     //InitEl();
     HWND hwnd = GetConsoleWindow();
     HDC hdc = GetDC(hwnd);
     HRGN hrgn = CreateRectRgn(0, 0, 640, 480);
+    //HRGN hrgn2 = CreateRectRgn(640, 0, 1280, 480);
+    //HRGN hrgn3 = CreateRectRgn(0, 480, 640, 960);
     HBRUSH hbr = CreateSolidBrush(RGB(0, 0, 0));
-    
+
     InitAgr();
     MakeArray(N);
     if (needLoad) Load(); else InitParticle();
@@ -1183,12 +1203,19 @@ int main()
         }
         //ElAbsorbe();
     
-        FillRgn(hdc, hrgn, hbr);
-        int sp = ShowPicture(hdc);
-
-        //pg = 1 - pg;
-        //if (s == 10){break; }
+        
         if (_kbhit()) ch = _getch();
+        if (ch == 'b') {
+            if (pg==0) FillRgn(hdc, hrgn, hbr);
+            ShowPicture(hdc);
+        }
+
+        if (pg < 10)
+            pg++;
+        else pg = 0;
+        
+        //if (s == 10){break; }
+        
         if (ch == 'q') break;
         if (t > 2) break; 
     } while (0 == 0);
@@ -1204,6 +1231,7 @@ int main()
     _close(f);
     std::cout << " sd=" << sd;
     _getch();
+
     DeleteObject(hbr);
     DeleteObject(hrgn);
     ReleaseDC(hwnd, hdc);
