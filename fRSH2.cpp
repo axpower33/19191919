@@ -47,7 +47,7 @@ bool needRand = true;
 int sd = 0;
 //---------- ”Ё§ЁзҐбЄЁҐ ўҐ«ЁзЁ­л -----------//
 int N = 50;
-double dt = 2e-6;                //c        Ј Ї® ўаҐ¬Ґ­Ё
+double dt = 3e-6;                //c        Ј Ї® ўаҐ¬Ґ­Ё
 double dte = 5e-11;              //c        Ј Ї® ўаҐ¬Ґ­Ё
 double Rmax = 25e-7;             //c¬      Њ ЄбЁ¬ «м­л© а ¤Ёгб г з бвЁжл
 double Rmin = 15e-7;             //c¬      ЊЁ­Ё¬ «м­л© а ¤Ёгб г з бвЁжл
@@ -477,48 +477,18 @@ void CulPatEl()
 
 
 #define Pprt(a) (*(Particle**)a)
+double Dza, Dzb, Ra, Rb;
 int sortOfZ(const void* a, const void* b)
 {
-    if (Pprt(a)->Z > Pprt(b)->Z) return  1; else
-        if (Pprt(a)->Z < Pprt(b)->Z) return -1; else
+ /*   Dza = Pprt(a)->Z * (Pprt(a)->Z - CMass[Pprt(a)->agr].Z) / (2 * Zmax);
+    Dzb = Pprt(b)->Z * (Pprt(b)->Z - CMass[Pprt(b)->agr].Z) / (2 * Zmax);
+    if (Pprt(a)->Z + Dza > Pprt(b)->Z + Dzb) return  1; else
+        if (Pprt(a)->Z + Dza < Pprt(b)->Z + Dzb) return -1; else
             return  0;
-}
-
-void ClearScreen()
-{
-    HANDLE                     hStdOut;
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    DWORD                      count;
-    DWORD                      cellCount;
-    COORD                      homeCoords = { 0, 0 };
-
-    hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hStdOut == INVALID_HANDLE_VALUE) return;
-
-    /* Get the number of cells in the current buffer */
-    if (!GetConsoleScreenBufferInfo(hStdOut, &csbi)) return;
-    cellCount = csbi.dwSize.X * csbi.dwSize.Y;
-
-    /* Fill the entire buffer with spaces */
-    if (!FillConsoleOutputCharacter(
-        hStdOut,
-        (TCHAR)' ',
-        cellCount,
-        homeCoords,
-        &count
-    )) return;
-
-    /* Fill the entire buffer with the current colors and attributes */
-    if (!FillConsoleOutputAttribute(
-        hStdOut,
-        csbi.wAttributes,
-        cellCount,
-        homeCoords,
-        &count
-    )) return;
-
-    /* Move the cursor home */
-    SetConsoleCursorPosition(hStdOut, homeCoords);
+ */   
+    if (Pprt(a)->Z > Pprt(b)->Z) return  1; else
+       if (Pprt(a)->Z < Pprt(b)->Z) return -1; else
+            return  0;
 }
 
 int ShowPicture(HDC hdc)
@@ -533,9 +503,88 @@ int ShowPicture(HDC hdc)
     //}
     int i;
     for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
-    qsort(Mp, N, sizeof(Particle*), &sortOfZ);
+    qsort(Mp, N, sizeof(Particle*), sortOfZ);
     
-    for (i=1; i<N; i++)
+    for (i=0; i<N; i++)
+    {
+        if (Mp[i]->agr != 0)
+        {
+            Dzx = Mp[i]->Z * (Mp[i]->X - CMass[Mp[i]->agr].X) / (2 * Zmax);
+            Dzy = Mp[i]->Z * (Mp[i]->Y - CMass[Mp[i]->agr].Y) / (2 * Zmax);
+        }
+        else Dzx = Dzy = 0;
+
+
+        //if (Pi->q == 0)
+        //{
+        //    HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 255));
+        //    HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+        //    Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
+        //}
+        //else
+        if (Mp[i]->q > 0)
+        {
+                HPEN hNPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
+                HPEN hOPen = (HPEN)SelectObject(hdc, hNPen);
+                MoveToEx(hdc, (int)((Mp[i]->X + Dzx + 5000000 * Mp[i]->R + DX) + 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R)), NULL);
+                LineTo(hdc, (int)((Mp[i]->X + Dzx + 5000000 * Mp[i]->R + DX) + 6), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R)));
+                MoveToEx(hdc, (int)((Mp[i]->X + Dzx + 5000000 * Mp[i]->R + DX + 3)), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R) - 2), NULL);
+                LineTo(hdc, (int)((Mp[i]->X + Dzx + 5000000 * Mp[i]->R + DX) + 3), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R) + 4));
+                Arc(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)((Mp[i]->X + Dzx + DX) / 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax) / 2), (int)((Mp[i]->X + Dzx + DX) / 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax) / 2));
+                DeleteObject(hNPen);
+                DeleteObject(hOPen);
+        }
+        else
+		if (Mp[i]->q < 0)
+        {
+                HPEN hNPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
+                HPEN hOPen = (HPEN)SelectObject(hdc, hNPen);
+                MoveToEx(hdc, (int)((Mp[i]->X + Dzx + 5000000 * Mp[i]->R + DX) + 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R)), NULL);
+                LineTo(hdc, (int)((Mp[i]->X + Dzx + 5000000 * Mp[i]->R + DX) + 6), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R)));
+                Arc(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)((Mp[i]->X + Dzx + DX) / 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax) / 2), (int)((Mp[i]->X + Dzx + DX) / 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax) / 2));
+                DeleteObject(hNPen);
+                DeleteObject(hOPen);
+        }
+    }
+    //    /* Setcolor (WHITE);
+    //       itoa (Pi->N,st,10);
+    //       OutTextXY(Pi->X+DX, Pi->Y+DY, st);
+    //    */
+    //    if (!Pi->stop) Line(LIGHTGRAY, Pi->X + DX, Pi->Y + DY, Pi->X + DX + Pi->Fx * 1e10, Pi->Y + DY + Pi->Fy * 1e10);
+    //}
+    //for (int i = 1; i < s; i++)
+    //{
+    //    Circle(GREEN, CMass[i].X + DX, CMass[i].Y + DY, 1.0 / rangeR);
+    //    Line(LIGHTGRAY, CMass[i].X + DX, CMass[i].Y + DY, CMass[i].X + DX + dF[i].X * 1e10, CMass[i].Y + DY + dF[i].Y * 1e10);
+    //}
+
+    //Rectangle(GREEN, GetminX + DX, GetminY + DY, 640 + DX, 480 + DY);
+    //drwline(SET, RED, maxx / 2 - 2, maxy / 2, maxx / 2 + 2, maxy / 2);
+    //drwline(SET, RED, maxx / 2, maxy / 2 - 2, maxx / 2, maxy / 2 + 2);
+    //drwbox(SET, RED, maxx / 2 - 4, maxy / 2 + 4, maxx / 2 + 4, maxy / 2 - 4);
+
+    //pagedisplay(0, 0, pg);
+    //pg = 1 - pg;
+    //pageactive(pg);
+    //fillpage(0);
+    //WorkShow = false;
+    return 1;
+}
+int ScPict(HDC hdc)
+{
+    //char st[100];
+    double Dzx, Dzy;
+    //if (WorkShow) return 1;
+    //WorkShow = true;
+    //for (El = FirstEl; El != NULL; El = El->Next)
+    //{
+    //    SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
+    //}
+    int i;
+    for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
+    qsort(Mp, N, sizeof(Particle*), sortOfZ);
+
+    for (i = 0; i < N; i++)
     {
         if (Mp[i]->agr != 0)
         {
@@ -555,7 +604,6 @@ int ShowPicture(HDC hdc)
         HBRUSH hbrush, hbrushOld;
         if (Mp[i]->q > 0)
         {
-            //LineTo(hdc, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
             hbrush = CreateSolidBrush(RGB(255, 0, 0));
             hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
             Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
@@ -563,18 +611,15 @@ int ShowPicture(HDC hdc)
             DeleteObject(hbrushOld);
         }
         else
-		if (Mp[i]->q < 0)
-		{
-			//Line(RED, Pi->X + Dzx + DX - 2.0 / rangeX, Pi->Y + Dzy + DY, Pi->X + Dzx + 2.0 / rangeX + DX, Pi->Y + Dzy + DY);
-			//Line(RED, Pi->X + Dzx + DX, Pi->Y - 2.0 / rangeY + Dzy + DY, Pi->X + Dzx + DX, Pi->Y + Dzy + 2.0 / rangeY + DY);
-			hbrush = CreateSolidBrush(RGB(0, 0, 255));
-			hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-            Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
-			DeleteObject(hbrush);
-			DeleteObject(hbrushOld);
-		}
+            if (Mp[i]->q < 0)
+            {
+                hbrush = CreateSolidBrush(RGB(0, 0, 255));
+                hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+                Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
+                DeleteObject(hbrush);
+                DeleteObject(hbrushOld);
+            }
     }
-
     //    /* Setcolor (WHITE);
     //       itoa (Pi->N,st,10);
     //       OutTextXY(Pi->X+DX, Pi->Y+DY, st);
@@ -1168,6 +1213,7 @@ int main()
     //InitEl();
     HWND hwnd = GetConsoleWindow();
     HDC hdc = GetDC(hwnd);
+    HDC hdc2 = GetDC(hwnd);
     HRGN hrgn = CreateRectRgn(0, 0, 640, 480);
     //HRGN hrgn2 = CreateRectRgn(640, 0, 1280, 480);
     //HRGN hrgn3 = CreateRectRgn(0, 480, 640, 960);
@@ -1176,7 +1222,7 @@ int main()
     InitAgr();
     MakeArray(N);
     if (needLoad) Load(); else InitParticle();
-
+    
     do
     {
         if (!Se)
@@ -1205,12 +1251,16 @@ int main()
     
         
         if (_kbhit()) ch = _getch();
-        if (ch == 'b') {
-            if (pg==0) FillRgn(hdc, hrgn, hbr);
+        if (ch == 'n') {
+            if (pg == 0) FillRgn(hdc, hrgn, hbr);
             ShowPicture(hdc);
         }
+        else if (ch == 'b') {
+            if (pg == 0) FillRgn(hdc2, hrgn, hbr); 
+            ScPict(hdc2);
+        }
 
-        if (pg < 10)
+        if (pg < 5)
             pg++;
         else pg = 0;
         
@@ -1235,6 +1285,7 @@ int main()
     DeleteObject(hbr);
     DeleteObject(hrgn);
     ReleaseDC(hwnd, hdc);
+    ReleaseDC(hwnd, hdc2);
 
     //DistroyArray();
     //DisposeEl();
