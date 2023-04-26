@@ -14,9 +14,7 @@ using namespace std;
 #include <string.h>
 #include <iostream>
 #include <windows.h>
-#include <iostream>
 #include <cmath>
-#include <windows.h>
 
 #define M_PI 3.14
 #define Rmx 35
@@ -253,7 +251,7 @@ void InitParticle()
     SizePatDistr();
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
     {
-        sign = 1 - sign;
+        
     m1: Pi->X = -Xmax + 640 * double(rand()) / RAND_MAX;
         Pi->Y = -Ymax + 480 * double(rand()) / RAND_MAX;
         Pi->Z = -Xmax + 640 * double(rand()) / RAND_MAX;
@@ -265,8 +263,10 @@ void InitParticle()
         }
 
 
-        if (sign) Pi->q = 27e-19; else Pi->q = -27e-19;
-        //Pi->q = 0;
+        if (sign == 0) Pi->q = 0; else if (sign == 1) Pi->q = 27e-19; else if (sign == 2) Pi->q = -27e-19;
+        sign++;
+        if (sign == 3) sign = 0;
+        
         Pi->mass = ((4 / 3) * M_PI * pow(Pi->R, 3)) / DensAg;
         TmPat[Pi->N] = Tmshft * double(rand()) / RAND_MAX;
         Pi->Nf = 0;
@@ -503,7 +503,7 @@ int ShowPicture(HDC hdc)
     //}
     int i;
     for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
-    qsort(Mp, N, sizeof(Particle*), sortOfZ);
+    qsort(Mp, N, sizeof(Particle*), &sortOfZ);
     
     for (i=0; i<N; i++)
     {
@@ -515,13 +515,15 @@ int ShowPicture(HDC hdc)
         else Dzx = Dzy = 0;
 
 
-        //if (Pi->q == 0)
-        //{
-        //    HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 255));
-        //    HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-        //    Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
-        //}
-        //else
+        if (Mp[i]->q == 0)
+        {
+            HPEN hNPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 255));
+            HPEN hOPen = (HPEN)SelectObject(hdc, hNPen);
+            Arc(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)((Mp[i]->X + Dzx + DX) / 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax) / 2), (int)((Mp[i]->X + Dzx + DX) / 2), (int)((Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax) / 2));
+            DeleteObject(hNPen);
+            DeleteObject(hOPen);
+        }
+        else
         if (Mp[i]->q > 0)
         {
                 HPEN hNPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
@@ -546,27 +548,7 @@ int ShowPicture(HDC hdc)
                 DeleteObject(hOPen);
         }
     }
-    //    /* Setcolor (WHITE);
-    //       itoa (Pi->N,st,10);
-    //       OutTextXY(Pi->X+DX, Pi->Y+DY, st);
-    //    */
-    //    if (!Pi->stop) Line(LIGHTGRAY, Pi->X + DX, Pi->Y + DY, Pi->X + DX + Pi->Fx * 1e10, Pi->Y + DY + Pi->Fy * 1e10);
-    //}
-    //for (int i = 1; i < s; i++)
-    //{
-    //    Circle(GREEN, CMass[i].X + DX, CMass[i].Y + DY, 1.0 / rangeR);
-    //    Line(LIGHTGRAY, CMass[i].X + DX, CMass[i].Y + DY, CMass[i].X + DX + dF[i].X * 1e10, CMass[i].Y + DY + dF[i].Y * 1e10);
-    //}
 
-    //Rectangle(GREEN, GetminX + DX, GetminY + DY, 640 + DX, 480 + DY);
-    //drwline(SET, RED, maxx / 2 - 2, maxy / 2, maxx / 2 + 2, maxy / 2);
-    //drwline(SET, RED, maxx / 2, maxy / 2 - 2, maxx / 2, maxy / 2 + 2);
-    //drwbox(SET, RED, maxx / 2 - 4, maxy / 2 + 4, maxx / 2 + 4, maxy / 2 - 4);
-
-    //pagedisplay(0, 0, pg);
-    //pg = 1 - pg;
-    //pageactive(pg);
-    //fillpage(0);
     //WorkShow = false;
     return 1;
 }
@@ -582,7 +564,7 @@ int ScPict(HDC hdc)
     //}
     int i;
     for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
-    qsort(Mp, N, sizeof(Particle*), sortOfZ);
+    qsort(Mp, N, sizeof(Particle*), &sortOfZ);
 
     for (i = 0; i < N; i++)
     {
@@ -593,55 +575,35 @@ int ScPict(HDC hdc)
         }
         else Dzx = Dzy = 0;
 
-
-        //if (Pi->q == 0)
-        //{
-        //    HBRUSH hbrush = CreateSolidBrush(RGB(255, 0, 255));
-        //    HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-        //    Ellipse(hdc, (int)(Pi->X + Dzx + DX), (int)(Pi->Y + Dzy + DY), (int)(Pi->X + Dzx + DX + Pi->R + Pi->Z * Pi->R / Zmax), (int)(Pi->Y + Dzy + DY + Pi->R + Pi->Z * Pi->R / Zmax));
-        //}
-        //else
         HBRUSH hbrush, hbrushOld;
-        if (Mp[i]->q > 0)
+        if (Mp[i]->q == 0)
         {
-            hbrush = CreateSolidBrush(RGB(255, 0, 0));
+            hbrush = CreateSolidBrush(RGB(255, 0, 255));
             hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
             Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
             DeleteObject(hbrush);
             DeleteObject(hbrushOld);
         }
         else
-            if (Mp[i]->q < 0)
+            if (Mp[i]->q > 0)
             {
-                hbrush = CreateSolidBrush(RGB(0, 0, 255));
+                hbrush = CreateSolidBrush(RGB(255, 0, 0));
                 hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
                 Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
                 DeleteObject(hbrush);
                 DeleteObject(hbrushOld);
             }
+            else
+                if (Mp[i]->q < 0)
+                {
+                    hbrush = CreateSolidBrush(RGB(0, 0, 255));
+                    hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+                    Ellipse(hdc, (int)(Mp[i]->X + Dzx + DX), (int)(Mp[i]->Y + Dzy + DY), (int)(Mp[i]->X + Dzx + DX + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax), (int)(Mp[i]->Y + Dzy + DY + 5000000 * Mp[i]->R + Mp[i]->Z * Mp[i]->R / Zmax));
+                    DeleteObject(hbrush);
+                    DeleteObject(hbrushOld);
+                }
     }
-    //    /* Setcolor (WHITE);
-    //       itoa (Pi->N,st,10);
-    //       OutTextXY(Pi->X+DX, Pi->Y+DY, st);
-    //    */
-    //    if (!Pi->stop) Line(LIGHTGRAY, Pi->X + DX, Pi->Y + DY, Pi->X + DX + Pi->Fx * 1e10, Pi->Y + DY + Pi->Fy * 1e10);
-    //}
-    //for (int i = 1; i < s; i++)
-    //{
-    //    Circle(GREEN, CMass[i].X + DX, CMass[i].Y + DY, 1.0 / rangeR);
-    //    Line(LIGHTGRAY, CMass[i].X + DX, CMass[i].Y + DY, CMass[i].X + DX + dF[i].X * 1e10, CMass[i].Y + DY + dF[i].Y * 1e10);
-    //}
 
-    //Rectangle(GREEN, GetminX + DX, GetminY + DY, 640 + DX, 480 + DY);
-    //drwline(SET, RED, maxx / 2 - 2, maxy / 2, maxx / 2 + 2, maxy / 2);
-    //drwline(SET, RED, maxx / 2, maxy / 2 - 2, maxx / 2, maxy / 2 + 2);
-    //drwbox(SET, RED, maxx / 2 - 4, maxy / 2 + 4, maxx / 2 + 4, maxy / 2 - 4);
-
-    //pagedisplay(0, 0, pg);
-    //pg = 1 - pg;
-    //pageactive(pg);
-    //fillpage(0);
-    //WorkShow = false;
     return 1;
 }
 //
