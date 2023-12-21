@@ -44,7 +44,7 @@ bool needSave = false;
 bool needRand = true;
 int sd = 0;
 //---------- ”Ё§ЁзҐбЄЁҐ ўҐ«ЁзЁ­л -----------//
-int N = 50;
+int N = 100;
 double dt = 3e-6;                //c        Ј Ї® ўаҐ¬Ґ­Ё
 double dte = 5e-11;              //c        Ј Ї® ўаҐ¬Ґ­Ё
 double Rmax = 25e-7;             //c¬      Њ ЄбЁ¬ «м­л© а ¤Ёгб г з бвЁжл
@@ -264,8 +264,8 @@ void InitParticle()
 
 
         if (sign == 0) Pi->q = 0; else if (sign == 1) Pi->q = 27e-19; else if (sign == 2) Pi->q = -27e-19;
-        sign++;
-        if (sign == 3) sign = 0;
+ /*       sign++;
+        if (sign == 3) sign = 0;*/
         
         Pi->mass = ((4 / 3) * M_PI * pow(Pi->R, 3)) / DensAg;
         TmPat[Pi->N] = Tmshft * double(rand()) / RAND_MAX;
@@ -296,6 +296,7 @@ double Intense = 0.5; //‚в Њ®й­®бвм бўҐв 
 double Ef = 1e19; //д®в®­®ў ­  1 „¦
 double QuntExit = 1e4;
 int Ie = 1;
+
 void ElEmit()
 {
     for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
@@ -320,9 +321,9 @@ void ElEmit()
             }
             double V = sqrt(Pi->Vx * Pi->Vx + Pi->Vy * Pi->Vy + Pi->Vz * Pi->Vz);
 
-            LastEl->X = Pi->X + Pi->R * Pi->Vx / V;
-            LastEl->Y = Pi->Y + Pi->R * Pi->Vy / V;
-            LastEl->Z = Pi->Z + Pi->R * Pi->Vz / V;
+            LastEl->X = Pi->X + Pi->R * 5000000 * Pi->Vx / V;
+            LastEl->Y = Pi->Y + Pi->R * 5000000 * Pi->Vy / V;
+            LastEl->Z = Pi->Z + Pi->R * 5000000 * Pi->Vz / V;
 
             double Ve = sqrt((h * c / L - A) * 2 / Me);
 
@@ -340,15 +341,18 @@ void ElEmit()
 void ExclEl(Electron* ExEl)
 {
     if (ExEl->Next != NULL)
-        ExEl->Next->Pred = ExEl->Pred; else LastEl = ExEl->Pred;
+        ExEl->Next->Pred = ExEl->Pred;
+    else LastEl = ExEl->Pred;
     if (ExEl->Pred != NULL)
-        ExEl->Pred->Next = ExEl->Next; else FirstEl = ExEl->Next;
+        ExEl->Pred->Next = ExEl->Next;
+    else FirstEl = ExEl->Next;
     delete ExEl;
 }
 
 void ElAbsorbe()
 {
     double dElPat;
+    bool fl = false;
     for (El = FirstEl; El != NULL; El = El->Next)
     {
         if (El->tr <= 2 * dt) continue;
@@ -356,13 +360,19 @@ void ElAbsorbe()
         {
             dElPat = (Pi->X - El->X) * (Pi->X - El->X) + (Pi->Y - El->Y) * (Pi->Y - El->Y) +
                 (Pi->Z - El->Z) * (Pi->Z - El->Z);
-            if (dElPat <= Pi->R * Pi->R)
+            if (dElPat <= Pi->R * Pi->R * 5000000 * 5000000)
             {
                 Pi->q += eQulon;
                 ExclEl(El);
+                fl = true;
                 Ie--;
             }
         }
+        if (fl) {
+            fl = false;
+            break;
+        }
+
     }
 }
 
@@ -391,9 +401,9 @@ void ElMove()
              El->Vy+=dVy;
              El->Vz+=dVz;*/
 
-        dx = dte * El->Vx;
-        dy = dte * El->Vy;
-        dz = dte * El->Vz;
+        dx = dte * El->Vx * 5000000;
+        dy = dte * El->Vy * 5000000;
+        dz = dte * El->Vz * 5000000;
 
         El->X += dx;
         El->Y += dy;
@@ -497,10 +507,10 @@ int ShowPicture(HDC hdc)
     double Dzx, Dzy;
     //if (WorkShow) return 1;
     //WorkShow = true;
-    //for (El = FirstEl; El != NULL; El = El->Next)
-    //{
-    //    SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
-    //}
+    for (El = FirstEl; El != NULL; El = El->Next)
+    {
+        SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
+    }
     int i;
     for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
     qsort(Mp, N, sizeof(Particle*), &sortOfZ);
@@ -548,6 +558,11 @@ int ShowPicture(HDC hdc)
                 DeleteObject(hOPen);
         }
     }
+    
+   /* for (El = FirstEl; El != NULL; El = El->Next)
+    {
+       SetPixel(hdc, (int)El->X, (int)El->Y, RGB(0, 0, 255));
+    }*/
 
     //WorkShow = false;
     return 1;
@@ -558,10 +573,10 @@ int ScPict(HDC hdc)
     double Dzx, Dzy;
     //if (WorkShow) return 1;
     //WorkShow = true;
-    //for (El = FirstEl; El != NULL; El = El->Next)
-    //{
-    //    SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
-    //}
+    for (El = FirstEl; El != NULL; El = El->Next)
+    {
+        SetPixel(hdc, El->X + DX, El->Y + DY, RGB(255, 255, 255));
+    }
     int i;
     for (i = 0, Pi = FirstPat; (Mp[i++] = Pi, Pi = Pi->next); );
     qsort(Mp, N, sizeof(Particle*), &sortOfZ);
@@ -603,6 +618,10 @@ int ScPict(HDC hdc)
                     DeleteObject(hbrushOld);
                 }
     }
+  /*  for (El = FirstEl; El != NULL; El = El->Next)
+    {
+        SetPixel(hdc, (int)El->X, (int)El->Y, RGB(0, 0, 255));
+    }*/
 
     return 1;
 }
@@ -1172,7 +1191,7 @@ int main()
     if (!needLoad) sd++;
     srand(sd);
 
-    //InitEl();
+    InitEl();
     HWND hwnd = GetConsoleWindow();
     HDC hdc = GetDC(hwnd);
     HDC hdc2 = GetDC(hwnd);
@@ -1189,7 +1208,7 @@ int main()
     {
         if (!Se)
         {
-            //ElEmit();
+            ElEmit();
             CulonForce();
             for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
                 for (Pj = Pi->next; Pj != NULL; Pj = Pj->next)
@@ -1205,24 +1224,29 @@ int main()
         }
         else
         {
-            //ElMove();
-            //te += dte;
-           // if ((te >= dt) || (Ie == 1)) { te = 0; Se = false; }
+            ElMove();
+            te += dte;
+            if ((te >= dt) || (Ie == 1)) { te = 0; Se = false; }
         }
-        //ElAbsorbe();
+        ElAbsorbe();
     
         
         if (_kbhit()) ch = _getch();
-        if (ch == 'n') {
-            if (pg == 0) FillRgn(hdc, hrgn, hbr);
-            ShowPicture(hdc);
-        }
-        else if (ch == 'b') {
-            if (pg == 0) FillRgn(hdc2, hrgn, hbr); 
-            ScPict(hdc2);
+        switch (ch)
+        {
+            case ('n'): {
+                if (pg == 0) FillRgn(hdc, hrgn, hbr);
+                ShowPicture(hdc);
+                break;
+            }
+            case ('b'): {
+                if (pg == 0) FillRgn(hdc2, hrgn, hbr);
+                ScPict(hdc2);
+                break;
+            }
         }
 
-        if (pg < 5)
+        if (pg < 10)
             pg++;
         else pg = 0;
         
@@ -1242,6 +1266,15 @@ int main()
     _write(f, &sd, sizeof(sd));
     _close(f);
     std::cout << " sd=" << sd;
+    
+    FILE* F1;
+    fopen_s(&F1, "qulon.dat", "w+");
+    for (Pi = FirstPat; Pi != NULL; Pi = Pi->next)
+    {
+        fprintf(F1, "%e\n", Pi->q);
+    }
+    fclose(F1);
+    std::cout << "qulon.dat is saved";
     _getch();
 
     DeleteObject(hbr);

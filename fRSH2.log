@@ -1,0 +1,6 @@
+﻿  fRSH2.cpp
+C:\Users\axpower\Source\Repos\fRSH2\fRSH2.cpp(512,41): warning C4244: аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\axpower\Source\Repos\fRSH2\fRSH2.cpp(512,29): warning C4244: аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\axpower\Source\Repos\fRSH2\fRSH2.cpp(578,41): warning C4244: аргумент: преобразование "double" в "int", возможна потеря данных
+C:\Users\axpower\Source\Repos\fRSH2\fRSH2.cpp(578,29): warning C4244: аргумент: преобразование "double" в "int", возможна потеря данных
+  fRSH2.vcxproj -> C:\Users\axpower\Source\Repos\fRSH2\Debug\fRSH2.exe
